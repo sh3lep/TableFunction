@@ -9,8 +9,8 @@
         <module name="TableFunction" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="TableFunction" target="1.7" />
+    <bytecodeTargetLevel target="9">
+      <module name="TableFunction" target="9" />
     </bytecodeTargetLevel>
   </component>
 </project>

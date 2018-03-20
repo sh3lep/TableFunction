@@ -1,4 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -6,81 +5,59 @@ import java.util.*;
 import static java.lang.Math.abs;
 
 public class TFun {
-    public ArrayList<Double> X;
-    public ArrayList<Double> Y;
 
-    TFun(){
-        X = new ArrayList<>();
-        Y = new ArrayList<>();
+    private TreeMap<Double, Double> table;
+
+    TFun() {
+        table = new TreeMap<>();
     }
 
-    TFun(ArrayList<Double> X, ArrayList<Double> Y) {
-        this.X = X;
-        this.Y = Y;
-    }
-
-    private Boolean hasPair(Double x, Double y) {
-        return X.contains(x) && Y.contains(y);
-    }
-
-    public void addPair(Double x, Double y) {
-        if (!hasPair(x, y)) {
-            X.add(x);
-            Y.add(y);
+    public boolean addPair(double x, double y) {
+        int currentSize = table.size();
+        if (!((table.containsKey(x)) && (table.containsValue(y)))) {
+            table.put(x, y);
         } else throw new IllegalArgumentException("Пара уже существует");
+        return table.size() - currentSize == 1;
     }
 
-    public void deletePair(Double x, Double y) {
-        if (hasPair(x, y)) {
-            X.remove(x);
-            Y.remove(y);
-        } else throw new IllegalArgumentException("Пара не найдена");
+    public boolean removePair(double x, double y) {
+        int currentSize = table.size();
+        if ((table.containsKey(x)) && (table.containsValue(y))) {
+            table.remove(x, y);
+        } else throw new IllegalArgumentException("Пара не существует");
+        return currentSize - table.size() == 1;
     }
 
-    public ArrayList<Pair<Double,Double>> getTable() {
-        ArrayList<Pair<Double,Double>> list = new ArrayList<>();
-        for (int i =0; i < X.size();i++){
-            list.add(new Pair<>(X.get(i),Y.get(i)));
-        }
-        return list;
+    public TreeMap<Double, Double> getTable() {
+        return table;
     }
 
-    public Pair<Double, Double> getClosest(Double x) {
-        Double closestX = Double.MAX_VALUE;
-        for (Double current : X) {
-            if (abs(current - x) < abs(closestX - x)) {
-                closestX = current;
+    public Pair<Double, Double> getClosest(double x) {
+        double closestX = Double.MAX_VALUE;
+        if (!table.containsKey(x)) {
+            for (Double current : table.keySet()) { // Минимальная по модулю разница
+                if (abs(current - x) < abs(closestX - x)) {
+                    closestX = current;
+                }
             }
-
-        }
-        return new Pair<>(closestX,Y.get(X.indexOf(closestX)));
+        } else throw new IllegalArgumentException("Пара с таким значением x существует");
+        return new Pair<>(closestX, table.get(closestX));
     }
 
-    public Double getApproximate(Double x) {
-        if (hasPair(x, Y.get(X.indexOf(x)))) {
-            throw new IllegalArgumentException("Существует точное значение");
-        }
-        Double leftX = Double.MAX_VALUE;
-        Double rightX = Double.MAX_VALUE;
-        for (Double current : X) {
-            if (current - x < leftX - x && current < x) {
-                leftX = current;
+    public double getApproximate(double x) { //Линейная интерполяция
+        double leftX = Double.MAX_VALUE;
+        double rightX = Double.MAX_VALUE;
+        if (!table.containsKey(x)) { // Находим "соседей" заданного значения x
+            for (Double current : table.keySet()) {
+                if (abs(current - x) < abs(leftX - x) && current < x) {
+                    leftX = current;
+                }
+                if (abs(current - x) < abs(rightX - x) && current > x) {
+                    rightX = current;
+                }
             }
-        }
-        for (Double current : X) {
-            if (current - x < rightX - x && current > x) {
-                rightX = current;
-            }
-        }
-        return X.get(X.indexOf(leftX)) + (x - leftX) / (rightX - leftX) * (X.get(X.indexOf(rightX)) - X.get(X.indexOf(leftX)));
-    }
-
-    @Override
-    public String toString() {
-        return "TFun{" +
-                "X=" + X +
-                ", Y=" + Y +
-                '}';
+        } else throw new IllegalArgumentException("Существует точное значение");
+        return table.get(leftX) + (x - leftX) / (rightX - leftX) * (table.get(rightX) - table.get(leftX)); // Формула из вики
     }
 
     @Override
@@ -90,14 +67,19 @@ public class TFun {
 
         TFun tFun = (TFun) o;
 
-        if (X != null ? !X.equals(tFun.X) : tFun.X != null) return false;
-        return Y != null ? Y.equals(tFun.Y) : tFun.Y == null;
+        return table != null ? table.equals(tFun.table) : tFun.table == null;
     }
 
     @Override
     public int hashCode() {
-        int result = X != null ? X.hashCode() : 0;
-        result = 31 * result + (Y != null ? Y.hashCode() : 0);
-        return result;
+        return table != null ? table.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "TFun{" +
+                "table=" + table +
+                '}';
+    }
+
 }
