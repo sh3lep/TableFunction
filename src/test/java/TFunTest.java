@@ -1,4 +1,5 @@
 import static org.junit.Assert.*;
+
 import javafx.util.Pair;
 import org.junit.jupiter.api.Test;
 
@@ -8,14 +9,23 @@ class TFunTest {
     public void addPair() {
         TFun table = new TFun();
         assertTrue(table.addPair(2.28, 13.37));
-        assertTrue(table.addPair(-27,1703 ));
+        assertTrue(table.addPair(-27, 1703));
     }
 
     @Test
-    public void deletePair() {
+    public void removePair() {
         TFun table = new TFun();
         table.addPair(22.8, 1.337);
         assertTrue(table.removePair(22.8, 1.337));
+    }
+
+    @Test
+    public void getTable() {
+        TFun table = new TFun();
+        table.addPair(22.8, 1.337);
+        table.addPair(27, 1703);
+        table.addPair(-5.1234, -777.666);
+        System.out.println(table.getTable());
     }
 
     @Test
@@ -29,13 +39,13 @@ class TFunTest {
     }
 
     @Test
-    public void getApproximate() {
+    public void interpolate() {
         TFun table = new TFun();
         table.addPair(5000.0, 228);
         table.addPair(6000.0, 15.5);
         table.addPair(8000.0, 19.2);
         table.addPair(9000.0, 1337);
-        assertEquals(16.1993, table.getApproximate(6378.0), 1e-3);
+        assertEquals(16.1993, table.interpolate(6378.0), 1e-3);
     }
 
 

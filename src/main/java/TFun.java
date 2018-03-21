@@ -44,7 +44,7 @@ public class TFun {
         return new Pair<>(closestX, table.get(closestX));
     }
 
-    public double getApproximate(double x) { //Линейная интерполяция
+    public double interpolate(double x) { //Линейная интерполяция
         double leftX = Double.MAX_VALUE;
         double rightX = Double.MAX_VALUE;
         if (!table.containsKey(x)) { // Находим "соседей" заданного значения x
@@ -57,7 +57,8 @@ public class TFun {
                 }
             }
         } else throw new IllegalArgumentException("Существует точное значение");
-        return table.get(leftX) + (x - leftX) / (rightX - leftX) * (table.get(rightX) - table.get(leftX)); // Формула из вики
+        return table.get(leftX) + (x - leftX) / (rightX - leftX) *
+                (table.get(rightX) - table.get(leftX)); // Формула линейной интерполяции
     }
 
     @Override
